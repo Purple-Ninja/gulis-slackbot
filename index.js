@@ -3,8 +3,6 @@
 var Botkit = require('Botkit');
 // var Bot = require('slackbots');
 
-// token=xoxb-61820345316-WHkHw3f9ZPAYy2vVf4z6adx6 node index.js
-
 if (!process.env.token) {
     console.log('Error: Specify token in environment');
     process.exit(1);
