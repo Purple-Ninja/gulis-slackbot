@@ -1,27 +1,22 @@
 'use strict';
 
-var Botkit = require('botkit');
-// var Bot = require('slackbots');
+var botkit = require('botkit');
+var request = require('request');
 
 if (!process.env.token) {
     console.log('Error: Specify token in environment');
     process.exit(1);
 }
 
-// var settings = {
-//     token: process.env.token,
-//     name: 'BeautyBot'
-// };
+var ALL_EVENTS = ["ambient", "direct_mention", "mention", "direct_message"];
+var API = {
+    search: 'http://localhost:6172/beauty/search',
+    logging: 'http://localhost:6172/beauty/logging',
+    feedback: 'http://localhost:6172/beauty/feedback',
+    trending: 'http://localhost:6172/beauty/trending'
+};
 
-// var bot = new Bot(settings);
-
-// bot.on('start', function() {
-//     bot.postMessageToChannel('random', 'Hello channel!');
-//     // bot.postMessageToUser('some-username', 'hello bro!');
-//     // bot.postMessageToGroup('some-private-group', 'hello group chat!');
-// });
-
-var controller = Botkit.slackbot({ debug: false });
+var controller = botkit.slackbot({ debug: false });
 
 var bot = controller.spawn({
   token: process.env.token
@@ -33,37 +28,32 @@ bot.startRTM(function(err) {
     }
 });
 
-// controller.on('message_received', function(bot, message) {
-//     bot.reply(message, 'I heard... something!');
-// });
+var messageHandler = function (bot, message) {
+    // search API options
+    var options = {
+        url: API.search,
+        qs: {
+            keyword: message.text,
+            push: 50,
+            type: '正妹',
+            limit: 1
+        }
+    };
 
-controller.hears(['keyword'],['message_received'],function(bot,message) {
+    // default response
+    var messageText = 'http://i.imgur.com/rBarB0Z.jpg';
 
-  // do something to respond to message
-  bot.reply(message,'You used a keyword!');
+    request.get(options)
+    .on('data', function(data) {
+        var res = JSON.parse(data);
+        messageText = res.suggestions[0].url;
+    })
+    .on('error', function(err) {
+        console.log(err);
+    }).on('end', function() {
+        return bot.reply(message, messageText);
+    });
+};
 
-});
+controller.hears('', ALL_EVENTS, messageHandler);
 
-
-// controller.spawn({
-//     token: process.env.token
-// });
-
-// controller.on('hello', function(bot,message) {
-
-//     // bot.
-//     console.log('>>> bot:', bot);
-//     console.log('>>> message:', message);
-
-//     // if (message.type === 'user_typing') {
-//     //     // do nothing
-//     // } else {
-//         // console.log('>>> message:', message);
-//     bot.reply(message, "Hello");
-//     // }
-// });
-
-// controller.hears(['(.*)'], ['direct_message','direct_mention','mention', 'message_received'], function(bot,message) {
-//     console.log('>>> message:', message);
-//     bot.reply(message, 'You saied '+message.text);
-// });
