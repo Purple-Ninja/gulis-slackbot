@@ -1,6 +1,6 @@
 'use strict';
 
-var Botkit = require('Botkit');
+var Botkit = require('botkit');
 // var Bot = require('slackbots');
 
 if (!process.env.token) {
