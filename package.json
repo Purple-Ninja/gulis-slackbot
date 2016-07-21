@@ -1,0 +1,23 @@
+{
+  "name": "cheerleaders-bot",
+  "version": "1.0.0",
+  "description": "A cheerleader slackbot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxis1718/gulis-slackbot.git"
+  },
+  "author": "MaxisKao",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maxis1718/gulis-slackbot/issues"
+  },
+  "homepage": "https://github.com/maxis1718/gulis-slackbot#readme",
+  "dependencies": {
+    "botkit": "^0.2.2",
+    "slackbots": "^0.5.1"
+  }
+}
