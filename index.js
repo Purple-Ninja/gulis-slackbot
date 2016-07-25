@@ -1,25 +1,30 @@
 'use strict';
 
 var Botkit = require('Botkit');
-// var Bot = require('slackbots');
+var request = require('request');
 
 if (!process.env.token) {
     console.log('Error: Specify token in environment');
     process.exit(1);
 }
 
-// var settings = {
-//     token: process.env.token,
-//     name: 'BeautyBot'
-// };
-
-// var bot = new Bot(settings);
-
-// bot.on('start', function() {
-//     bot.postMessageToChannel('random', 'Hello channel!');
-//     // bot.postMessageToUser('some-username', 'hello bro!');
-//     // bot.postMessageToGroup('some-private-group', 'hello group chat!');
-// });
+var gulis = {
+    // keyword search
+    search: function(query, callback) {
+        var options = {
+            url: 'http://localhost:5000/beauty/search',
+            qs: {
+                push: 0,
+                keyword: query
+            }
+        };
+        request.get(options).on('data', function(data) {
+            callback(null, data && JSON.parse(data) || {});
+        }).on('error', function(err){
+            callback(err, {});
+        });
+    }
+};
 
 var controller = Botkit.slackbot({ debug: false });
 
@@ -33,37 +38,12 @@ bot.startRTM(function(err) {
     }
 });
 
-// controller.on('message_received', function(bot, message) {
-//     bot.reply(message, 'I heard... something!');
-// });
-
-controller.hears(['keyword'],['message_received'],function(bot,message) {
-
-  // do something to respond to message
-  bot.reply(message,'You used a keyword!');
-
+controller.hears('', ['direct_message','direct_mention','mention', 'ambient'], function(bot, message) {
+    gulis.search(message.text, function(err, data) {
+        var msg;
+        if (data.post.full_title && data.image.img_url) {
+            msg = data.post.full_title + '\n' + data.image.img_url || '';
+        }
+        bot.reply(message, err || msg || "I'm dead.");
+    });
 });
-
-
-// controller.spawn({
-//     token: process.env.token
-// });
-
-// controller.on('hello', function(bot,message) {
-
-//     // bot.
-//     console.log('>>> bot:', bot);
-//     console.log('>>> message:', message);
-
-//     // if (message.type === 'user_typing') {
-//     //     // do nothing
-//     // } else {
-//         // console.log('>>> message:', message);
-//     bot.reply(message, "Hello");
-//     // }
-// });
-
-// controller.hears(['(.*)'], ['direct_message','direct_mention','mention', 'message_received'], function(bot,message) {
-//     console.log('>>> message:', message);
-//     bot.reply(message, 'You saied '+message.text);
-// });
