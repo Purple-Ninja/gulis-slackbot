@@ -28,6 +28,14 @@ var gulis = {
 
 var controller = Botkit.slackbot({ debug: false });
 
+var ALL_EVENTS = ["ambient", "direct_mention", "mention", "direct_message"];
+var API = {
+    search: 'http://localhost:6172/beauty/search',
+    logging: 'http://localhost:6172/beauty/logging',
+    feedback: 'http://localhost:6172/beauty/feedback',
+    trending: 'http://localhost:6172/beauty/trending'
+};
+
 var bot = controller.spawn({
   token: process.env.token
 });
@@ -38,7 +46,7 @@ bot.startRTM(function(err) {
     }
 });
 
-controller.hears('', ['direct_message','direct_mention','mention', 'ambient'], function(bot, message) {
+var messageHandler = function (bot, message) {
     gulis.search(message.text, function(err, data) {
         var msg;
         if (data.post.full_title && data.image.img_url) {
@@ -46,4 +54,7 @@ controller.hears('', ['direct_message','direct_mention','mention', 'ambient'], f
         }
         bot.reply(message, err || msg || "I'm dead.");
     });
-});
+};
+
+controller.hears('', ALL_EVENTS, messageHandler);
+
