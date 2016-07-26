@@ -47,9 +47,10 @@ bot.startRTM(function(err) {
 });
 
 var messageHandler = function (bot, message) {
+
     gulis.search(message.text, function(err, data) {
         var msg;
-        if (data.post.full_title && data.image.img_url) {
+        if (data.post && data.post.full_title && data.image && data.image.img_url) {
             msg = data.post.full_title + '\n' + data.image.img_url || '';
         }
         bot.reply(message, err || msg || "I'm dead.");
